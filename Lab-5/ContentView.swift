@@ -1,50 +1,61 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var statusMessage = "Press Start to Collect Data"
     @StateObject private var viewModel = PoseDetectionViewModel()
-
     @State private var isCameraPresented = false
+    @State private var isPhotoLibraryPresented = false
     @State private var capturedImage: UIImage?
+    @State private var showLandmarkView = false
 
     var body: some View {
         VStack(spacing: 20) {
-            Text(statusMessage)
+            Text(viewModel.statusMessage)
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .padding()
 
-            Button(action: {
+            // Button to open the camera
+            Button("Open Camera") {
                 isCameraPresented = true
-            }) {
-                Text("Open Camera")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
             }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+
+            // Button to open the photo library
+            Button("Upload Image") {
+                isPhotoLibraryPresented = true
+            }
+            .padding()
+            .background(Color.purple)
+            .foregroundColor(.white)
+            .cornerRadius(8)
 
             if let image = capturedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-                
-                Button(action: {
+                Button("Analyze Image") {
                     viewModel.processImage(image)
-                    statusMessage = "Pose data processed!"
-                }) {
-                    Text("Analyze Image")
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                    showLandmarkView = true
                 }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
             }
         }
         .padding()
         .sheet(isPresented: $isCameraPresented) {
             CameraView(capturedImage: $capturedImage, isPresented: $isCameraPresented)
+        }
+        .sheet(isPresented: $isPhotoLibraryPresented) {
+            PhotoLibraryView(capturedImage: $capturedImage, isPresented: $isPhotoLibraryPresented)
+        }
+        .fullScreenCover(isPresented: $showLandmarkView) {
+            if let image = capturedImage {
+                LandmarkView(image: image, points: viewModel.recognizedPoints) {
+                    showLandmarkView = false
+                }
+            }
         }
     }
 }

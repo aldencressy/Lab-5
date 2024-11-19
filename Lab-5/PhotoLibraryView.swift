@@ -1,14 +1,22 @@
-import SwiftUI
-import UIKit
+//
+//  PhotoLibraryView.swift
+//  Lab-5
+//
+//  Created by Alden Cressy on 11/19/24.
+//
 
-struct CameraView: UIViewControllerRepresentable {
+
+import SwiftUI
+import PhotosUI
+
+struct PhotoLibraryView: UIViewControllerRepresentable {
     @Binding var capturedImage: UIImage?
     @Binding var isPresented: Bool
 
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        let parent: CameraView
+        let parent: PhotoLibraryView
 
-        init(parent: CameraView) {
+        init(parent: PhotoLibraryView) {
             self.parent = parent
         }
 
@@ -25,15 +33,12 @@ struct CameraView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
+        return Coordinator(parent: self)
     }
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.mediaTypes = ["public.image"]
-        picker.cameraCaptureMode = .photo // Ensure it's in photo mode
-        picker.cameraDevice = .rear // Use the rear camera
+        picker.sourceType = .photoLibrary
         picker.delegate = context.coordinator
         return picker
     }
