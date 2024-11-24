@@ -42,6 +42,15 @@ struct ContentView: View {
                 .foregroundColor(.white)
                 .cornerRadius(8)
             }
+
+            // Display the prediction result
+            if let prediction = viewModel.prediction {
+                Text("Predicted Pose: \(prediction)")
+                    .font(.title)
+                    .padding()
+                    .background(Color.yellow)
+                    .cornerRadius(8)
+            }
         }
         .padding()
         .sheet(isPresented: $isCameraPresented) {

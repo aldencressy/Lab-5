@@ -10,22 +10,9 @@
 		8BB376BB2CEC2D0C009E86F6 /* Lab-5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lab-5.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8BB376D42CEC347E009E86F6 /* Exceptions for "Lab-5" folder in "Lab-5" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 8BB376BA2CEC2D0C009E86F6 /* Lab-5 */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8BB376BD2CEC2D0C009E86F6 /* Lab-5 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				8BB376D42CEC347E009E86F6 /* Exceptions for "Lab-5" folder in "Lab-5" target */,
-			);
 			path = "Lab-5";
 			sourceTree = "<group>";
 		};
@@ -67,7 +54,6 @@
 			buildPhases = (
 				8BB376B72CEC2D0C009E86F6 /* Sources */,
 				8BB376B82CEC2D0C009E86F6 /* Frameworks */,
-				8BB376B92CEC2D0C009E86F6 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -116,16 +102,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		8BB376B92CEC2D0C009E86F6 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8BB376B72CEC2D0C009E86F6 /* Sources */ = {
