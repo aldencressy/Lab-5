@@ -4,8 +4,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 import pandas as pd
-import os
-import pickle
 import json
 
 app = Flask(__name__)
@@ -14,180 +12,123 @@ app = Flask(__name__)
 feature_data = []
 
 # Model storage
-model_file = "pose_model.pkl"
+model = None  # The trained model instance
 
-# Path to the preprocessed JSON file
-json_file_path = "training_dataset.json"
+# Define expected feature names (landmarks)
+expected_features = [
+    'right_shoulder_1_joint_x', 'right_shoulder_1_joint_y', 'right_shoulder_1_joint_confidence',
+    'right_eye_joint_x', 'right_eye_joint_y', 'right_eye_joint_confidence',
+    'left_upLeg_joint_x', 'left_upLeg_joint_y', 'left_upLeg_joint_confidence',
+    'left_hand_joint_x', 'left_hand_joint_y', 'left_hand_joint_confidence',
+    'root_x', 'root_y', 'root_confidence',
+    'neck_1_joint_x', 'neck_1_joint_y', 'neck_1_joint_confidence',
+    'head_joint_x', 'head_joint_y', 'head_joint_confidence',
+    'left_shoulder_1_joint_x', 'left_shoulder_1_joint_y', 'left_shoulder_1_joint_confidence',
+    'right_ear_joint_x', 'right_ear_joint_y', 'right_ear_joint_confidence',
+    'left_leg_joint_x', 'left_leg_joint_y', 'left_leg_joint_confidence',
+    'left_eye_joint_x', 'left_eye_joint_y', 'left_eye_joint_confidence',
+    'left_foot_joint_x', 'left_foot_joint_y', 'left_foot_joint_confidence',
+    'right_upLeg_joint_x', 'right_upLeg_joint_y', 'right_upLeg_joint_confidence',
+    'right_leg_joint_x', 'right_leg_joint_y', 'right_leg_joint_confidence',
+    'right_forearm_joint_x', 'right_forearm_joint_y', 'right_forearm_joint_confidence',
+    'right_foot_joint_x', 'right_foot_joint_y', 'right_foot_joint_confidence',
+    'right_hand_joint_x', 'right_hand_joint_y', 'right_hand_joint_confidence',
+    'left_forearm_joint_x', 'left_forearm_joint_y', 'left_forearm_joint_confidence',
+    'left_ear_joint_x', 'left_ear_joint_y', 'left_ear_joint_confidence'
+]
 
-
-# Load landmarks from JSON file
-def load_landmarks_from_json(json_path):
-    global feature_data
-    try:
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-
-        for entry in data:
-            label = entry['label']
-            landmarks = entry['landmarks']
-
-            # Flatten the landmarks into a single feature vector
-            features = {}
-            for joint_name, values in landmarks.items():
-                features[f"{joint_name}_x"] = values['x']
-                features[f"{joint_name}_y"] = values['y']
-                features[f"{joint_name}_confidence"] = values['confidence']
-
-            features['label'] = label
-            feature_data.append(features)
-        print(f"Loaded {len(feature_data)} samples from JSON.")
-    except Exception as e:
-        print(f"Error loading JSON: {str(e)}")
-
-
-# Load data when the server starts
-load_landmarks_from_json(json_file_path)
-
-
-# Endpoint to upload labeled feature data
 @app.route('/upload', methods=['POST'])
 def upload_features():
+    global model
     try:
         data = request.get_json()
         label = data['label']
         features = data['features']
 
-        # Add data to in-memory storage
-        for feature in features:
-            feature['label'] = label
-            feature_data.append(feature)
+        # Clean up feature keys to match expected features
+        processed_features = {}
+        for key, value in features.items():
+            clean_key = key.replace("VNRecognizedPointKey(_rawValue: ", "").replace(")", "")
+            processed_features[clean_key] = value
 
-        return jsonify({"message": "Features uploaded successfully", "count": len(features)}), 200
+        # Add missing features with default 0.0
+        complete_features = {key: processed_features.get(key, 0.0) for key in expected_features}
+        complete_features['label'] = label
+
+        # Add features to in-memory storage
+        feature_data.append(complete_features)
+
+        # Log the added features
+        print(f"Uploaded features: {complete_features}")
+        print(f"Total features in dataset: {len(feature_data)}")
+
+        # Automatically train the model after every upload
+        if len(feature_data) > 1:  # Ensure there's enough data to train
+            print("Training model after upload...")
+            # Train the model
+            df = pd.DataFrame(feature_data)
+            X = df.drop(columns=['label'])
+            y = df['label']
+
+            # Build and train the model
+            imputer = SimpleImputer(strategy='mean')
+            model_pipeline = Pipeline(steps=[
+                ('impute', imputer),
+                ('classifier', RandomForestClassifier(random_state=42))
+            ])
+            model_pipeline.fit(X, y)
+
+            # Update the global model
+            model = model_pipeline
+            print("Model trained successfully after upload.")
+
+        return jsonify({"message": "Features uploaded and model trained successfully", "total_features": len(feature_data)}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 
-# Endpoint to train the model
-@app.route('/train', methods=['POST'])
-def train_model():
-    try:
-        if not feature_data:
-            return jsonify({"error": "No feature data available for training"}), 400
-
-        # Convert in-memory feature data to a Pandas DataFrame
-        df = pd.DataFrame(feature_data)
-        if 'label' not in df.columns:
-            return jsonify({"error": "Missing labels in data"}), 400
-
-        # Separate features and labels
-        X = df.drop(columns=['label'])
-        y = df['label']
-
-        # Handle missing values with an imputer
-        imputer = SimpleImputer(strategy='mean')
-        model_pipeline = Pipeline(steps=[
-            ('impute', imputer),
-            ('classifier', RandomForestClassifier(random_state=42))
-        ])
-
-        # Train/test split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-        # Train the model
-        model_pipeline.fit(X_train, y_train)
-
-        # Save the model to disk
-        with open(model_file, 'wb') as f:
-            pickle.dump(model_pipeline, f)
-
-        accuracy = model_pipeline.score(X_test, y_test)
-        return jsonify({"message": "Model trained successfully", "accuracy": accuracy}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
-# Endpoint to make predictions
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Log raw request data
-        print("Headers:", request.headers)
-        print("Data:", request.data.decode("utf-8"))
+        global model
 
-        # Parse the incoming JSON
+        # Ensure the model exists
+        if model is None:
+            print("Error: Model is not trained or loaded.")
+            return jsonify({"error": "Model is not trained. Train the model first using the /train endpoint."}), 500
+
+        # Parse the incoming data
         data = request.get_json()
-        print("Parsed JSON:", data)
 
-        features = data['features']
+        # Ensure 'features' key exists
+        if 'features' not in data:
+            return jsonify({"error": "'features' key is missing from request"}), 400
 
-        # Preprocess the feature names to match the expected format
-        processed_features = []
-        for feature in features:
-            processed_feature = {}
-            for key, value in feature.items():
-                # Remove the prefix and convert to the expected format
-                clean_key = key.replace("VNRecognizedPointKey(_rawValue: ", "").replace(")", "")
-                processed_feature[clean_key] = value
-            processed_features.append(processed_feature)
+        raw_features = data['features']
+        print("Raw Features Received:", json.dumps(raw_features, indent=2))
 
-        # Load the model
-        with open(model_file, 'rb') as f:
-            model = pickle.load(f)
+        # Clean and process features
+        processed_features = {}
+        for key, value in raw_features.items():
+            clean_key = key.replace("VNRecognizedPointKey(_rawValue: ", "").replace(")", "")
+            processed_features[clean_key] = value
 
-        # Define the expected feature order (used during training)
-        expected_features = [
-            'right_shoulder_1_joint_x', 'right_shoulder_1_joint_y', 'right_shoulder_1_joint_confidence',
-            'right_eye_joint_x', 'right_eye_joint_y', 'right_eye_joint_confidence',
-            'left_upLeg_joint_x', 'left_upLeg_joint_y', 'left_upLeg_joint_confidence',
-            'left_hand_joint_x', 'left_hand_joint_y', 'left_hand_joint_confidence',
-            'root_x', 'root_y', 'root_confidence',
-            'neck_1_joint_x', 'neck_1_joint_y', 'neck_1_joint_confidence',
-            'head_joint_x', 'head_joint_y', 'head_joint_confidence',
-            'left_shoulder_1_joint_x', 'left_shoulder_1_joint_y', 'left_shoulder_1_joint_confidence',
-            'right_ear_joint_x', 'right_ear_joint_y', 'right_ear_joint_confidence',
-            'left_leg_joint_x', 'left_leg_joint_y', 'left_leg_joint_confidence',
-            'left_eye_joint_x', 'left_eye_joint_y', 'left_eye_joint_confidence',
-            'left_foot_joint_x', 'left_foot_joint_y', 'left_foot_joint_confidence',
-            'right_upLeg_joint_x', 'right_upLeg_joint_y', 'right_upLeg_joint_confidence',
-            'right_leg_joint_x', 'right_leg_joint_y', 'right_leg_joint_confidence',
-            'right_forearm_joint_x', 'right_forearm_joint_y', 'right_forearm_joint_confidence',
-            'right_foot_joint_x', 'right_foot_joint_y', 'right_foot_joint_confidence',
-            'right_hand_joint_x', 'right_hand_joint_y', 'right_hand_joint_confidence',
-            'left_forearm_joint_x', 'left_forearm_joint_y', 'left_forearm_joint_confidence',
-            'left_ear_joint_x', 'left_ear_joint_y', 'left_ear_joint_confidence'
-        ]
+        # Fill missing features with default values (0.0)
+        complete_features = {key: processed_features.get(key, 0.0) for key in expected_features}
+        print("Processed Features:", json.dumps(complete_features, indent=2))
 
-        # Order the features to match the expected order
-        ordered_features = []
-        for feature in processed_features:
-            ordered_feature = {key: feature.get(key, 0) for key in expected_features}  # Default missing keys to 0
-            ordered_features.append(ordered_feature)
+        # Create a DataFrame for prediction
+        df = pd.DataFrame([complete_features])
+        print("DataFrame for Prediction:\n", df)
 
-        # Predict the label
-        df = pd.DataFrame(ordered_features)
+        # Predict using the trained model
         predictions = model.predict(df)
+        print("Prediction Result:", predictions)
 
-        response = {"predictions": predictions.tolist()}
-        print("Response:", response)
-        return jsonify(response), 200
+        return jsonify({"predictions": predictions.tolist()}), 200
     except Exception as e:
-        error_message = {"error": str(e)}
-        print("Error:", error_message)
-        return jsonify(error_message), 400
-
-
-@app.route('/inspect_model', methods=['GET'])
-def inspect_model():
-    try:
-        with open(model_file, 'rb') as f:
-            model = pickle.load(f)
-
-        # Extract expected feature names from the model
-        feature_names = model.named_steps['impute'].feature_names_in_
-
-        return jsonify({"expected_features": list(feature_names)}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        print("Error during prediction:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
