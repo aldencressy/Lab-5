@@ -15,6 +15,11 @@ struct PosePredictionView: View {
     @State private var predictedPose: String? = nil
     @State private var statusMessage: String = "Upload an image to predict the pose."
     @State private var selectedModel = "Random Forest" // Default selection
+    @State private var accuracyRF: Double? = nil
+    @State private var accuracyKNN: Double? = nil
+
+    @State private var showQuestion = false // Controls whether the question is displayed
+    @State private var isLoading = false   // Loading state during API request
 
     var onDismiss: (() -> Void)?
 
@@ -71,13 +76,69 @@ struct PosePredictionView: View {
                     .padding()
                     .background(Color.yellow)
                     .cornerRadius(8)
+                    .onAppear {
+                        showQuestion = true
+                    }
             }
+        
+            // Display the question and buttons after the predicted pose
+            if showQuestion {
+                VStack {
+                    Text("Was this prediction correct?")
+                        .font(.headline)
+                        .padding()
+                    HStack {
+                        Button(action: {
+                            validatePrediction(correct: true)
+                        }) {
+                            Text("Yes")
+                                .font(.title3)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                                    
+                        Button(action: {
+                            validatePrediction(correct: false)
+                        }) {
+                            Text("No")
+                                .font(.title3)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+                        }
+                        .padding()
+                    }
+                    .padding()
+                } else if isLoading {
+                    ProgressView("Submitting your response...")
+                } else if !showQuestion && !isLoading && predictedPose != nil {
+                    Text("Thank you for your feedback!")
+                        .font(.title2)
+                        .padding()
+                }
 
             Text(statusMessage)
                 .padding()
                 .foregroundColor(.gray)
 
             Spacer()
+            
+            if let accuracyRF = accuracyRF {
+                Text("Current Random Forest Accuracy: \(String(format: "%.2f", accuracyRF))%")
+                    .font(.headline)
+                    .padding()
+            }
+            if let accuracyKNN = accuracyKNN {
+                Text("Current KNN Accuracy: \(String(format: "%.2f", accuracyKNN))%")
+                    .font(.headline)
+                    .padding()
+            }
 
             Button("Done") {
                 onDismiss?()
@@ -157,6 +218,85 @@ struct PosePredictionView: View {
             }
         }
         task.resume()
+    }
+    
+    private func validatePrediction(correct: Bool) {
+        // Hide the question and show loading state
+        showQuestion = false
+        isLoading = true
+        
+        var url: URL?
+        
+        if selectedModel == "KNN" {
+            guard let knnUrl = URL(string: "http://10.9.141.79:8000/validate_knn") else {
+                statusMessage = "Invalid server URL."
+                return
+            }
+            url = knnUrl
+        }else if selectedModel == "Random Forest" {
+            guard let rfUrl = URL(string: "http://10.9.141.79:8000/validate_rf") else {
+                statusMessage = "Invalid server URL."
+                return
+            }
+            url = rfUrl
+        }
+        
+        guard let finalUrl = url else {
+            statusMessage = "URL could not be determined."
+            return
+        }
+            
+            
+        var request = URLRequest(url: finalUrl)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+        let body: [String: Any] = ["correct": correct]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
+            
+        URLSession.shared.dataTask(with: request) { data, response, error in
+    
+            DispatchQueue.main.async {
+                isLoading = false
+                    
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                } else if let response = response as? HTTPURLResponse, response.statusCode == 200 {
+                    print("Validation submitted successfully")
+                } else {
+                    print("Unexpected server response")
+                }
+                
+                if let data = data {
+                    
+                    print("reached")
+                    print(self.selectedModel)
+                    do {
+                        if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                            // save accuracy
+                            if selectedModel == "KNN" {
+                                if let accuracy = jsonResponse["accuracy"] as? Double {
+                                    self.accuracyKNN = accuracy // Save accuracy to use elsewhere
+                                    print("Updated KNN Accuracy: \(accuracy)%")
+                                }
+                            }else if selectedModel == "Random Forest" {
+                                if let accuracy = jsonResponse["accuracy"] as? Double {
+                                    self.accuracyRF = accuracy
+                                    print("Updated RF Accuracy: \(accuracy)%")
+                                }
+                            }
+                        }
+                    } catch {
+                        print("Failed to parse JSON response: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }.resume()
+    }
+    
+    private func showAccuracyMessage(accuracy: Double) {
+        print("Accuracy updated: \(accuracy)%")
+        // Optionally update the UI to display the accuracy (e.g., use a state variable)
     }
 
     func extractFeatures(from image: UIImage) -> [String: Any] {

@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 import pandas as pd
 import json
@@ -15,6 +16,12 @@ feature_data = []
 # Model storage
 modelRF = None  # The trained model instance
 modelKNN = None  # The trained model instance
+
+total_feedback_rf = 0
+correct_feedback_rf = 0
+
+total_feedback_knn = 0
+correct_feedback_knn = 0
 
 # Define expected feature names (landmarks)
 expected_features = [
@@ -222,6 +229,62 @@ def predictKNN():
         return jsonify({"predictions": predictions.tolist()}), 200
     except Exception as e:
         print("Error during prediction:", str(e))
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/validate_rf', methods=['POST'])
+def validate_prediction_rf():
+    global total_feedback_rf, correct_feedback_rf
+
+    try:
+        data = request.get_json()
+
+        if 'correct' not in data:
+            return jsonify({"error": "'correct' key is missing from the request"}), 400
+
+        total_feedback_rf += 1
+        if data['correct']:
+            correct_feedback_rf += 1
+
+        #calculate accuracy
+        accuracy = (correct_feedback_rf / total_feedback_rf) * 100
+
+        #return the accuracy
+        return jsonify({
+            "message": "Feedback received successfully",
+            "total_feedback": total_feedback_rf,
+            "correct_feedback": correct_feedback_rf,
+            "accuracy": accuracy
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/validate_knn', methods=['POST'])
+def validate_prediction_knn():
+    global total_feedback_knn, correct_feedback_knn
+
+    try:
+        data = request.get_json()
+
+        if 'correct' not in data:
+            return jsonify({"error": "'correct' key is missing from the request"}), 400
+        
+        total_feedback_knn += 1
+        if data['correct']:
+            correct_feedback_knn += 1
+
+        #calculate accuracy
+        accuracy = (correct_feedback_knn / total_feedback_knn) * 100
+
+        #return the accuracy
+        return jsonify({
+            "message": "Feedback received successfully",
+            "total_feedback": total_feedback_knn,
+            "correct_feedback": correct_feedback_knn,
+            "accuracy": accuracy
+        }), 200
+
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
