@@ -67,7 +67,7 @@ class PoseDetectionViewModel: ObservableObject {
             dict["\(jointName)_confidence"] = pair.value.confidence
         }
 
-        guard let url = URL(string: "http://192.168.0.154:8000/predict") else {
+        guard let url = URL(string: "http://10.9.145.21:8000/predict") else {
             print("Invalid URL for prediction endpoint")
             return
         }
