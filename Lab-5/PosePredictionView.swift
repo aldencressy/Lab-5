@@ -46,6 +46,12 @@ struct PosePredictionView: View {
                 .padding()
 
                 Button("Predict") {
+                    // reset variables to nil to allow for new prediction
+                    predictedPose = nil
+                    showQuestion = false
+                    isLoading = false
+                    statusMessage = ""
+                    
                     if let image = capturedImage {
                         predictPose(image: image)
                     } else {
