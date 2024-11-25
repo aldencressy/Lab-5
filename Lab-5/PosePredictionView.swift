@@ -56,6 +56,9 @@ struct PosePredictionView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding()
+            .onChange(of: selectedModel) { newValue in
+                saveSelectedModel(newValue)
+            }
                         
             Text("Selected Model: \(selectedModel)")
                 .padding()
@@ -88,12 +91,33 @@ struct PosePredictionView: View {
             PhotoLibraryView(capturedImage: $capturedImage, isPresented: $isPhotoPickerPresented)
         }
     }
+    
+    func saveSelectedModel(_ model: String) {
+        UserDefaults.standard.set(model, forKey: "SelectedModel")
+    }
 
     func predictPose(image: UIImage) {
-        guard let url = URL(string: "http://10.9.145.21:8000/predict") else {
-            statusMessage = "Invalid server URL."
+        var url: URL?
+        
+        if selectedModel == "KNN" {
+            guard let knnUrl = URL(string: "http://10.9.141.79:8000/predictKNN") else {
+                statusMessage = "Invalid server URL."
+                return
+            }
+            url = knnUrl
+        }else if selectedModel == "Random Forest" {
+            guard let rfUrl = URL(string: "http://10.9.141.79:8000/predictRF") else {
+                statusMessage = "Invalid server URL."
+                return
+            }
+            url = rfUrl
+        }
+        
+        guard let finalUrl = url else {
+            statusMessage = "URL could not be determined."
             return
         }
+    
 
         // Here, you should extract features from the image using Vision (like in LandmarkView)
         let extractedFeatures = extractFeatures(from: image)
@@ -102,7 +126,7 @@ struct PosePredictionView: View {
             return
         }
 
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: finalUrl)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

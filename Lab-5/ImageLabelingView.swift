@@ -53,7 +53,8 @@ struct ImageLabelingView: View {
 
                 Button("Upload") {
                     if let image = capturedImage, !detectedFeatures.isEmpty {
-                        uploadFeatures(label: selectedPose)
+                        uploadFeaturesRF(label: selectedPose)
+                        uploadFeaturesKNN(label: selectedPose)
                     } else if detectedFeatures.isEmpty {
                         statusMessage = "Please detect features before uploading."
                     } else {
@@ -135,13 +136,64 @@ struct ImageLabelingView: View {
     }
 
     /// Upload detected features to the backend
-    private func uploadFeatures(label: String) {
+    private func uploadFeaturesRF(label: String) {
         guard !detectedFeatures.isEmpty else {
             statusMessage = "No features detected for upload."
             return
         }
 
-        guard let url = URL(string: "http://10.9.145.21:8000/upload") else {
+        guard let url = URL(string: "http://10.9.141.79:8000/uploadRF") else {
+            statusMessage = "Invalid server URL."
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "features": detectedFeatures,
+            "label": label,
+            "dsid": 1 // Replace with the appropriate dataset ID
+        ]
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+        } catch {
+            statusMessage = "Failed to encode features for upload."
+            return
+        }
+
+        statusMessage = "Uploading features..."
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    statusMessage = "Upload failed: \(error.localizedDescription)"
+                }
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    statusMessage = "Features uploaded successfully."
+                    detectedFeatures = [:] // Clear features after upload
+                }
+            } else {
+                DispatchQueue.main.async {
+                    statusMessage = "Failed to upload features. Try again."
+                }
+            }
+        }
+        task.resume()
+    }
+    
+    private func uploadFeaturesKNN(label: String) {
+        guard !detectedFeatures.isEmpty else {
+            statusMessage = "No features detected for upload."
+            return
+        }
+
+        guard let url = URL(string: "http://10.9.141.79:8000/uploadKNN") else {
             statusMessage = "Invalid server URL."
             return
         }
