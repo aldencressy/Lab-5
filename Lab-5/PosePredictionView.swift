@@ -14,6 +14,7 @@ struct PosePredictionView: View {
     @State private var isPhotoPickerPresented = false
     @State private var predictedPose: String? = nil
     @State private var statusMessage: String = "Upload an image to predict the pose."
+    @State private var selectedModel = "Random Forest" // Default selection
 
     var onDismiss: (() -> Void)?
 
@@ -48,6 +49,18 @@ struct PosePredictionView: View {
                 }
                 .padding()
             }
+            
+            Picker("Pick Model", selection: $selectedModel) {
+                Text("Random Forest").tag("Random Forest")
+                Text("KNN").tag("KNN")
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+                        
+            Text("Selected Model: \(selectedModel)")
+                .padding()
+            
+            
 
             if let pose = predictedPose {
                 Text("Predicted Pose: \(pose)")
