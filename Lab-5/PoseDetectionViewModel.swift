@@ -23,11 +23,11 @@ class PoseDetectionViewModel: ObservableObject {
             return
         }
 
-        // Prepare Vision request handler
+        //Vision request handler
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
 
         do {
-            // Perform pose detection
+            //pose detection
             try handler.perform([bodyPoseRequest])
             
             if let results = bodyPoseRequest.results as? [VNHumanBodyPoseObservation], !results.isEmpty {
@@ -52,15 +52,15 @@ class PoseDetectionViewModel: ObservableObject {
                 self.recognizedPoints = points.mapValues { CGPoint(x: $0.x, y: $0.y) }
                 self.statusMessage = "Pose detected with \(points.count) key points."
                 
-                // Send the landmarks to the backend for prediction
+                //send landmarks to the backend for prediction
                 self.sendLandmarksForPrediction(points: points)
             }
         }
     }
     private func sendLandmarksForPrediction(points: [VNHumanBodyPoseObservation.JointName: VNRecognizedPoint]) {
-        // Map the keys to the correct format expected by the backend
+        //map the keys to the correct format expected by the backend
         let normalizedPoints = points.reduce(into: [String: Any]()) { dict, pair in
-            // Extract the raw value from VNRecognizedPointKey
+            //raw value from VNRecognizedPointKey
             let jointName = pair.key.rawValue
             dict["\(jointName)_x"] = pair.value.x
             dict["\(jointName)_y"] = pair.value.y

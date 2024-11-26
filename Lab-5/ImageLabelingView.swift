@@ -6,9 +6,9 @@ struct ImageLabelingView: View {
     @State private var isPhotoPickerPresented = false
     @State private var selectedPose: String = "downdog" // Default pose
     @State private var statusMessage: String = "Select an image and label it."
-    @State private var detectedFeatures: [String: Any] = [:] // Store detected features
+    @State private var detectedFeatures: [String: Any] = [:]
 
-    let poses = ["downdog", "goddess", "plank", "tree", "warrior2"] // Dropdown options
+    let poses = ["downdog", "goddess", "plank", "tree", "warrior2"] // dropdown options
 
     var onDismiss: (() -> Void)? // Callback for dismissal
 
@@ -87,7 +87,7 @@ struct ImageLabelingView: View {
         }
     }
 
-    /// Detect features using Vision and extract key points
+    //get features using Vision and extract key points
     private func detectFeatures(from image: UIImage) {
         guard let cgImage = image.cgImage else {
             statusMessage = "Failed to process image."
@@ -116,7 +116,7 @@ struct ImageLabelingView: View {
         }
     }
 
-    /// Process the VNHumanBodyPoseObservation and prepare detected features
+    // process the VNHumanBodyPoseObservation and prepare detected features
     private func processObservation(_ observation: VNHumanBodyPoseObservation) {
         do {
             let points = try observation.recognizedPoints(.all)
@@ -135,14 +135,14 @@ struct ImageLabelingView: View {
         }
     }
 
-    /// Upload detected features to the backend
+    //upload features to backend
     private func uploadFeaturesRF(label: String) {
         guard !detectedFeatures.isEmpty else {
             statusMessage = "No features detected for upload."
             return
         }
 
-        guard let url = URL(string: "http://10.9.141.79:8000/uploadRF") else {
+        guard let url = URL(string: "http://10.115.57.151:8000/uploadRF") else {
             statusMessage = "Invalid server URL."
             return
         }
@@ -154,7 +154,7 @@ struct ImageLabelingView: View {
         let body: [String: Any] = [
             "features": detectedFeatures,
             "label": label,
-            "dsid": 1 // Replace with the appropriate dataset ID
+            "dsid": 1
         ]
 
         do {
@@ -193,7 +193,7 @@ struct ImageLabelingView: View {
             return
         }
 
-        guard let url = URL(string: "http://10.9.141.79:8000/uploadKNN") else {
+        guard let url = URL(string: "http://10.115.57.151:8000/uploadKNN") else {
             statusMessage = "Invalid server URL."
             return
         }
@@ -205,7 +205,7 @@ struct ImageLabelingView: View {
         let body: [String: Any] = [
             "features": detectedFeatures,
             "label": label,
-            "dsid": 1 // Replace with the appropriate dataset ID
+            "dsid": 1
         ]
 
         do {
@@ -227,7 +227,7 @@ struct ImageLabelingView: View {
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                 DispatchQueue.main.async {
                     statusMessage = "Features uploaded successfully."
-                    detectedFeatures = [:] // Clear features after upload
+                    detectedFeatures = [:] //clear features after upload
                 }
             } else {
                 DispatchQueue.main.async {

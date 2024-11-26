@@ -17,7 +17,7 @@ class CreateMLTrainer {
             }
             try fileManager.unzipItem(at: datasetURL, to: unzippedDirectory)
 
-            // Get the training dataset
+            // Get the training dataset 
             let trainDirectory = unzippedDirectory.appendingPathComponent("Train")
 
             // Ensure that it's not empty

@@ -14,7 +14,7 @@ struct PosePredictionView: View {
     @State private var isPhotoPickerPresented = false
     @State private var predictedPose: String? = nil
     @State private var statusMessage: String = "Upload an image to predict the pose."
-    @State private var selectedModel = "Random Forest" // Default selection
+    @State private var selectedModel = "Random Forest"
     @State private var accuracyRF: Double? = nil
     @State private var accuracyKNN: Double? = nil
 
@@ -87,7 +87,7 @@ struct PosePredictionView: View {
                     }
             }
         
-            // Display the question and buttons after the predicted pose
+            //question and buttons display after the pose is predicted
             if showQuestion {
                 VStack {
                     Text("Was this prediction correct?")
@@ -167,13 +167,13 @@ struct PosePredictionView: View {
         var url: URL?
         
         if selectedModel == "KNN" {
-            guard let knnUrl = URL(string: "http://10.9.141.79:8000/predictKNN") else {
+            guard let knnUrl = URL(string: "http://10.115.57.151:8000/predictKNN") else {
                 statusMessage = "Invalid server URL."
                 return
             }
             url = knnUrl
         }else if selectedModel == "Random Forest" {
-            guard let rfUrl = URL(string: "http://10.9.141.79:8000/predictRF") else {
+            guard let rfUrl = URL(string: "http://10.115.57.151:8000/predictRF") else {
                 statusMessage = "Invalid server URL."
                 return
             }
@@ -186,7 +186,7 @@ struct PosePredictionView: View {
         }
     
 
-        // Here, you should extract features from the image using Vision (like in LandmarkView)
+        //extract features from major landmarks
         let extractedFeatures = extractFeatures(from: image)
         guard !extractedFeatures.isEmpty else {
             statusMessage = "Failed to extract features from the image."
@@ -227,20 +227,20 @@ struct PosePredictionView: View {
     }
     
     private func validatePrediction(correct: Bool) {
-        // Hide the question and show loading state
+        //hide question until Prediction
         showQuestion = false
         isLoading = true
         
         var url: URL?
         
         if selectedModel == "KNN" {
-            guard let knnUrl = URL(string: "http://10.9.141.79:8000/validate_knn") else {
+            guard let knnUrl = URL(string: "http://10.115.57.151:8000/validate_knn") else {
                 statusMessage = "Invalid server URL."
                 return
             }
             url = knnUrl
         }else if selectedModel == "Random Forest" {
-            guard let rfUrl = URL(string: "http://10.9.141.79:8000/validate_rf") else {
+            guard let rfUrl = URL(string: "http://10.115.57.151:8000/validate_rf") else {
                 statusMessage = "Invalid server URL."
                 return
             }
@@ -300,11 +300,6 @@ struct PosePredictionView: View {
         }.resume()
     }
     
-    private func showAccuracyMessage(accuracy: Double) {
-        print("Accuracy updated: \(accuracy)%")
-        // Optionally update the UI to display the accuracy (e.g., use a state variable)
-    }
-
     func extractFeatures(from image: UIImage) -> [String: Any] {
         var features: [String: Any] = [:]
         guard let cgImage = image.cgImage else { return features }
@@ -329,16 +324,16 @@ struct PosePredictionView: View {
             print("Error performing Vision request: \(error)")
         }
 
-        // Ensure all expected keys exist in the feature dictionary
+        //define features
         let expectedKeys = [
             "right_shoulder_1_joint_x", "right_shoulder_1_joint_y", "right_shoulder_1_joint_confidence",
             "right_eye_joint_x", "right_eye_joint_y", "right_eye_joint_confidence",
-            // Add all other expected keys here
+            
         ]
 
         for key in expectedKeys {
             if features[key] == nil {
-                features[key] = 0.0 // Default to 0 if missing
+                features[key] = 0.0
             }
         }
 
