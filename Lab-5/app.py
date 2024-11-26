@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -7,6 +7,10 @@ from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 import pandas as pd
 import json
+import pandas as pd
+import kagglehub
+import os
+import shutil
 
 app = Flask(__name__)
 
@@ -286,7 +290,68 @@ def validate_prediction_knn():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+"""THIS IS FOR LOCAL PREPROCESSING"""
+
+@app.route('/process_kaggle_dataset', methods=['GET'])
+def process_kaggle_dataset():
+    try:
+        # Download the dataset through Kagglehub
+        dataset_path = kagglehub.dataset_download("niharika41298/yoga-poses-dataset")
+        print(f"Dataset downloaded to: {dataset_path}")
+
+        # Define the path
+        CREATE_ML_FOLDER = './datasets/createml_ready'
+        os.makedirs(CREATE_ML_FOLDER, exist_ok=True)
+
+        # Find and assign the train and test datasets
+        train_source = os.path.join(dataset_path, 'DATASET', 'Train')
+        test_source = os.path.join(dataset_path, 'DATASET', 'Test')
+
+        if not os.path.exists(train_source) or not os.path.exists(test_source):
+            return jsonify({"error": "Train or Test folder not found in the dataset."}), 404
+
+        # Prepare train and test data
+        train_dest = os.path.join(CREATE_ML_FOLDER, 'Train')
+        test_dest = os.path.join(CREATE_ML_FOLDER, 'Test')
+
+        # Copy train and test folders
+        shutil.copytree(train_source, train_dest, dirs_exist_ok=True)
+        shutil.copytree(test_source, test_dest, dirs_exist_ok=True)
+
+        return jsonify({
+            "message": "Dataset downloaded and processed.",
+            "processed_folder": CREATE_ML_FOLDER
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/export_createml_dataset', methods=['GET'])
+def export_createml_dataset():
+    try:
+        CREATE_ML_FOLDER = './datasets/createml_ready'
+
+        # Compress the CreateML dataset
+        zip_path = './datasets/createml_ready.zip'
+
+        # Remove old file if it exists
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
+
+        # Zip the CreateML dataset
+        shutil.make_archive(CREATE_ML_FOLDER, 'zip', CREATE_ML_FOLDER)
+
+        # Check if the zip file was created
+        if not os.path.exists(zip_path):
+            return jsonify({"error": "Failed to create dataset zip file."}), 500
+
+        # Send the zip file
+        return send_file(zip_path, as_attachment=True)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=False)
