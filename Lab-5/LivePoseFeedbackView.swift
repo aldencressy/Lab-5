@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct LivePoseFeedbackView: View {
     @StateObject private var viewModel = LivePoseFeedbackViewModel()
@@ -16,7 +17,23 @@ struct LivePoseFeedbackView: View {
                     .cornerRadius(10)
                     .overlay(
                         VStack {
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    viewModel.toggleCamera()
+                                }) {
+                                    Image(systemName: "camera.rotate")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 24))
+                                        .padding()
+                                        .background(Color.black.opacity(0.7))
+                                        .clipShape(Circle())
+                                }
+                                .padding()
+                            }
+                            
                             Spacer()
+                            
                             if viewModel.feedbackMessage.contains("Great!") {
                                 Image(systemName: "hand.thumbsup.fill")
                                     .resizable()

@@ -9,6 +9,7 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
     @Published var selectedPose: String = ""
     @Published var poseConfidence: CGFloat = 0.0
     @Published var isCorrectPose: Bool = false
+    @Published var currentCameraPosition: AVCaptureDevice.Position = .front
     
     // Vision request
     private let bodyPoseRequest = VNDetectHumanBodyPoseRequest()
@@ -22,7 +23,6 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
     
     private var lastRequestTime: Date = Date()
     private let requestInterval: TimeInterval = 3.0  // 3 seconds
-    
     
     // Expected features matching the server's format
     private let expectedFeatures = [
@@ -71,13 +71,24 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
         }
     }
     
+    func toggleCamera() {
+        currentCameraPosition = currentCameraPosition == .front ? .back : .front
+        setupCamera()
+    }
+    
     private func setupCamera() {
         guard isCameraAuthorized else { return }
         
+        // Stop the session and remove existing inputs
         captureSession.beginConfiguration()
+        if let inputs = captureSession.inputs as? [AVCaptureDeviceInput] {
+            for input in inputs {
+                captureSession.removeInput(input)
+            }
+        }
         
-        // Add camera input
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
+        // Add camera input with current position
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: currentCameraPosition),
               let input = try? AVCaptureDeviceInput(device: camera) else {
             return
         }
@@ -86,22 +97,26 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
             captureSession.addInput(input)
         }
         
-        // Add video output
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoProcessingQueue"))
-        if captureSession.canAddOutput(videoOutput) {
-            captureSession.addOutput(videoOutput)
+        // Configure video output if not already added
+        if !captureSession.outputs.contains(videoOutput) {
+            videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoProcessingQueue"))
+            if captureSession.canAddOutput(videoOutput) {
+                captureSession.addOutput(videoOutput)
+            }
         }
         
-        // Set video orientation
+        // Set video orientation and mirroring
         if let connection = videoOutput.connection(with: .video) {
             connection.videoOrientation = .portrait
-            connection.isVideoMirrored = true
+            connection.isVideoMirrored = currentCameraPosition == .front
         }
         
         captureSession.commitConfiguration()
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession.startRunning()
+        if !captureSession.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.captureSession.startRunning()
+            }
         }
     }
     
@@ -132,8 +147,6 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
         default: return cleanKey
         }
     }
-    
-    
 }
 
 extension LivePoseFeedbackViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -199,8 +212,8 @@ extension LivePoseFeedbackViewModel: AVCaptureVideoDataOutputSampleBufferDelegat
                     DispatchQueue.main.async { [self] in
                         self.isCorrectPose = isCorrect
                         self.feedbackMessage = isCorrect ?
-                            "Great! Keep holding the pose!" :
-                            "Adjust your pose to match the correct form"
+                        "Great! Keep holding the pose!" :
+                        "Adjust your pose to match the correct form"
                     }
                 } catch {
                     DispatchQueue.main.async {
