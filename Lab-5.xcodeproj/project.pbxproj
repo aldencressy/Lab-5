@@ -7,11 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8BF3C5292D0A3FEB0023EE76 /* warrior2.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5242D0A3FEA0023EE76 /* warrior2.mp4 */; };
+		8BF3C52A2D0A3FEB0023EE76 /* downdog.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */; };
+		8BF3C52B2D0A3FEB0023EE76 /* tree.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5262D0A3FEB0023EE76 /* tree.mp4 */; };
+		8BF3C52C2D0A3FEB0023EE76 /* plank.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5272D0A3FEB0023EE76 /* plank.mp4 */; };
+		8BF3C52D2D0A3FEB0023EE76 /* goddess.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5282D0A3FEB0023EE76 /* goddess.mp4 */; };
 		EBE440ED2CF667C400FA4D43 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = EBE440EC2CF667C400FA4D43 /* ZIPFoundation */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		8BF3C5232D0A3F870023EE76 /* Copy Bundle Resources */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				8BF3C5292D0A3FEB0023EE76 /* warrior2.mp4 in Copy Bundle Resources */,
+				8BF3C52A2D0A3FEB0023EE76 /* downdog.mp4 in Copy Bundle Resources */,
+				8BF3C52B2D0A3FEB0023EE76 /* tree.mp4 in Copy Bundle Resources */,
+				8BF3C52C2D0A3FEB0023EE76 /* plank.mp4 in Copy Bundle Resources */,
+				8BF3C52D2D0A3FEB0023EE76 /* goddess.mp4 in Copy Bundle Resources */,
+			);
+			name = "Copy Bundle Resources";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		8BB376BB2CEC2D0C009E86F6 /* Lab-5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lab-5.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8BF3C5242D0A3FEA0023EE76 /* warrior2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = warrior2.mp4; sourceTree = "<group>"; };
+		8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = downdog.mp4; sourceTree = "<group>"; };
+		8BF3C5262D0A3FEB0023EE76 /* tree.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = tree.mp4; sourceTree = "<group>"; };
+		8BF3C5272D0A3FEB0023EE76 /* plank.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = plank.mp4; sourceTree = "<group>"; };
+		8BF3C5282D0A3FEB0023EE76 /* goddess.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = goddess.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -37,6 +65,12 @@
 		8BB376B22CEC2D0C009E86F6 = {
 			isa = PBXGroup;
 			children = (
+				8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */,
+				8BF3C5282D0A3FEB0023EE76 /* goddess.mp4 */,
+				8BF3C5272D0A3FEB0023EE76 /* plank.mp4 */,
+				8BF3C5262D0A3FEB0023EE76 /* tree.mp4 */,
+				8BF3C5242D0A3FEA0023EE76 /* warrior2.mp4 */,
+				8BF3C5222D0A3EF30023EE76 /* Videos */,
 				8BB376BD2CEC2D0C009E86F6 /* Lab-5 */,
 				8BB376BC2CEC2D0C009E86F6 /* Products */,
 			);
@@ -50,6 +84,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8BF3C5222D0A3EF30023EE76 /* Videos */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Videos;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -59,6 +100,7 @@
 			buildPhases = (
 				8BB376B72CEC2D0C009E86F6 /* Sources */,
 				8BB376B82CEC2D0C009E86F6 /* Frameworks */,
+				8BF3C5232D0A3F870023EE76 /* Copy Bundle Resources */,
 			);
 			buildRules = (
 			);
