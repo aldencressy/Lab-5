@@ -1,16 +1,10 @@
 import pickle
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 import pandas as pd
-import json
-import pandas as pd
-import os
-import shutil
 
 app = Flask(__name__)
 
