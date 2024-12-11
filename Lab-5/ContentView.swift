@@ -1,12 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isTrainViewPresented = false
-    @State private var isPredictViewPresented = false
-    @State private var isLocallyTrainedPresented = false
-    @State private var isLiveFeedbackPresented = false
-    @State private var selectedPose: YogaPose?
-    
     private let availablePoses: [YogaPose] = [
         YogaPose(
             id: UUID(),
@@ -91,83 +85,66 @@ struct ContentView: View {
     ]
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Pose Trainer and Predictor")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            Button("Live Feedback") {
-                isLiveFeedbackPresented = true
+        NavigationView {
+            VStack(spacing: 30) {
+                Text("Welcome to Pose Trainer")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+
+                NavigationLink(
+                    destination: PoseSelectionView(availablePoses: availablePoses)
+                ) {
+                    HStack {
+                        Image(systemName: "figure.walk")
+                            .font(.title2)
+                        Text("Practice")
+                            .fontWeight(.bold)
+                    }
+                    .padding()
+                    .frame(maxWidth: 200)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+
+                Spacer()
             }
             .padding()
-            .background(Color.orange)
-            .foregroundColor(.white)
-            .cornerRadius(8)
-            .sheet(isPresented: $isLiveFeedbackPresented) {
-                NavigationView {
-                    List(availablePoses) { pose in
-                        Button(action: {
-                            selectedPose = pose
-                        }) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text(pose.name.capitalized)
-                                        .font(.headline)
-                                    Spacer()
-                                    if selectedPose?.id == pose.id {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                                
-                                Text(pose.description)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                
-                                Text(pose.difficulty.rawValue.capitalized)
-                                    .font(.caption)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(Color.blue.opacity(0.2))
-                                    )
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    .navigationTitle("Select a Pose")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Start") {
-                                if selectedPose != nil {
-                                    isLiveFeedbackPresented = false
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        showLiveFeedback()
-                                    }
-                                }
-                            }
-                            .disabled(selectedPose == nil)
-                        }
-                        
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Cancel") {
-                                isLiveFeedbackPresented = false
-                                selectedPose = nil
-                            }
-                        }
-                    }
-                }
-            }
-            .sheet(item: $selectedPose) { pose in
-                LivePoseFeedbackView(selectedPose: pose)
-            }
         }
     }
-    
-    private func showLiveFeedback() {
-        selectedPose = selectedPose
+}
+
+struct PoseSelectionView: View {
+    let availablePoses: [YogaPose]
+
+    var body: some View {
+        List(availablePoses) { pose in
+            NavigationLink(
+                destination: LivePoseFeedbackView(selectedPose: pose)
+            ) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text(pose.name.capitalized)
+                            .font(.headline)
+                        Spacer()
+                        Text(pose.difficulty.rawValue.capitalized)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(pose.difficulty == .beginner ? Color.green.opacity(0.2) : Color.orange.opacity(0.2))
+                            )
+                    }
+                    Text(pose.description)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                .padding(.vertical, 5)
+            }
+        }
+        .listStyle(InsetGroupedListStyle())
+        .navigationTitle("Select Pose")
     }
 }

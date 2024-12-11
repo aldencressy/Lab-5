@@ -65,6 +65,7 @@ struct LivePoseFeedbackView: View {
             
             Spacer()
         }
+        .navigationTitle("Live Feedback")
         .onAppear {
             viewModel.selectedPose = selectedPose.name
             viewModel.checkCameraAuthorization()
