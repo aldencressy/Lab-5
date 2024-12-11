@@ -107,6 +107,21 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(12)
                 }
+                NavigationLink(
+                    destination: PoseLearnView(availablePoses: availablePoses)
+                ) {
+                    HStack {
+                        Image(systemName: "figure.mind.and.body")
+                            .font(.title2)
+                        Text("Learn")
+                            .fontWeight(.bold)
+                    }
+                    .padding()
+                    .frame(maxWidth: 200)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
 
                 Spacer()
             }
@@ -122,6 +137,40 @@ struct PoseSelectionView: View {
         List(availablePoses) { pose in
             NavigationLink(
                 destination: LivePoseFeedbackView(selectedPose: pose)
+            ) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text(pose.name.capitalized)
+                            .font(.headline)
+                        Spacer()
+                        Text(pose.difficulty.rawValue.capitalized)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(pose.difficulty == .beginner ? Color.green.opacity(0.2) : Color.orange.opacity(0.2))
+                            )
+                    }
+                    Text(pose.description)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                .padding(.vertical, 5)
+            }
+        }
+        .listStyle(InsetGroupedListStyle())
+        .navigationTitle("Select Pose")
+    }
+}
+
+struct PoseLearnView: View {
+    let availablePoses: [YogaPose]
+
+    var body: some View {
+        List(availablePoses) { pose in
+            NavigationLink(
+                destination: LearnPosesView(selectedPose: pose)
             ) {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {

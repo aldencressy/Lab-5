@@ -2,7 +2,7 @@ import Foundation
 
 class PoseDetectionService {
     static let shared = PoseDetectionService()
-    private let baseURL = "http://10.9.176.46:8000"
+    private let baseURL = "http://10.9.150.102:8000"
     
     enum PoseDetectionError: Error {
         case invalidURL8997u8443
