@@ -1,80 +1,76 @@
 import SwiftUI
-import AVFoundation
-import Vision
 
 struct LivePoseFeedbackView: View {
     @StateObject private var viewModel = LivePoseFeedbackViewModel()
-    @State private var selectedPose: String = "Tree" // Default selected pose
-
+    let selectedPose: YogaPose
+    
     var body: some View {
         VStack {
-            Text("Perform the \(selectedPose) pose")
-                .font(.title)
-                .padding()
-
-            CameraView(session: viewModel.captureSession)
-                .frame(height: 300)
-                .border(Color.gray, width: 1)
-
-            Text(viewModel.feedbackMessage)
+            Text(selectedPose.name)
                 .font(.headline)
-                .foregroundColor(viewModel.isPoseCorrect ? .green : .red)
                 .padding()
-
-            Picker("Select Pose", selection: $selectedPose) {
-                Text("Tree").tag("Tree")
-                Text("Downdog").tag("Downdog")
-                Text("Warrior 2").tag("Warrior 2")
-                Text("Plank").tag("Plank")
-                Text("Goddess").tag("Goddess")
+            
+            ZStack {
+                CameraPreview(captureSession: viewModel.captureSession)
+                    .aspectRatio(3/4, contentMode: .fit)
+                    .cornerRadius(10)
+                    .overlay(
+                        VStack {
+                            Spacer()
+                            if viewModel.feedbackMessage.contains("Great!") {
+                                Image(systemName: "hand.thumbsup.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.green)
+                                    .frame(width: 100, height: 100)
+                                    .padding()
+                            } else if viewModel.feedbackMessage.contains("Adjust") {
+                                Image(systemName: "hand.thumbsdown.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundColor(.red)
+                                    .frame(width: 100, height: 100)
+                                    .padding()
+                            }
+                            
+                            Text(viewModel.feedbackMessage)
+                                .foregroundColor(.white)
+                                .font(.headline)
+                                .padding()
+                                .background(Color.black.opacity(0.7))
+                                .cornerRadius(10)
+                        }
+                    )
+                
+                if !viewModel.isCameraAuthorized {
+                    Text("Camera access required. Please enable in settings.")
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                }
             }
-            .pickerStyle(SegmentedPickerStyle())
+            .frame(maxHeight: .infinity)
             .padding()
-            .onChange(of: selectedPose) { newValue in
-                viewModel.updateSelectedPose(newValue)
+            
+            VStack {
+                ForEach(selectedPose.instructions, id: \.self) { instruction in
+                    Text(instruction)
+                        .font(.callout)
+                        .padding(.horizontal)
+                }
             }
-
+            .padding()
+            
             Spacer()
-
-            Button("Stop") {
-                viewModel.stopSession()
-            }
-            .padding()
-            .background(Color.red)
-            .foregroundColor(.white)
-            .cornerRadius(8)
         }
         .onAppear {
-            viewModel.startSession()
+            viewModel.selectedPose = selectedPose.name
+            viewModel.checkCameraAuthorization()
         }
         .onDisappear {
-            viewModel.stopSession()
+            viewModel.stopCamera()
         }
-    }
-}
-
-struct CameraView: UIViewRepresentable {
-    let session: AVCaptureSession
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.frame = view.bounds
-        view.layer.addSublayer(previewLayer)
-        context.coordinator.previewLayer = previewLayer
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        context.coordinator.previewLayer?.session = session
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    class Coordinator {
-        var previewLayer: AVCaptureVideoPreviewLayer?
     }
 }
