@@ -3,6 +3,7 @@ import AVFoundation
 
 struct LivePoseFeedbackView: View {
     @StateObject private var viewModel = LivePoseFeedbackViewModel()
+    @State private var showingVideoTutorial = false
     let selectedPose: YogaPose
     
     var body: some View {
@@ -83,6 +84,29 @@ struct LivePoseFeedbackView: View {
             Spacer()
         }
         .navigationTitle("Live Feedback")
+        .alert("Need Help?", isPresented: $viewModel.showVideoPrompt) {
+            Button("Watch Tutorial") {
+                showingVideoTutorial = true
+                viewModel.showVideoPrompt = false
+            }
+            Button("Keep Practicing", role: .cancel) {
+                viewModel.showVideoPrompt = false
+            }
+        } message: {
+            Text("Would you like to watch a video tutorial on how to do this pose correctly?")
+        }
+        .fullScreenCover(isPresented: $showingVideoTutorial) {
+            NavigationView {
+                LearnPosesView(selectedPose: selectedPose)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                showingVideoTutorial = false
+                            }
+                        }
+                    }
+            }
+        }
         .onAppear {
             viewModel.selectedPose = selectedPose.name
             viewModel.checkCameraAuthorization()

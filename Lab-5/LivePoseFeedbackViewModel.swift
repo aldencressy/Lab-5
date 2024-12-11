@@ -3,13 +3,13 @@ import Vision
 import SwiftUI
 
 class LivePoseFeedbackViewModel: NSObject, ObservableObject {
-    // Published properties
     @Published var feedbackMessage: String = "Initializing camera..."
     @Published var isCameraAuthorized = false
     @Published var selectedPose: String = ""
     @Published var poseConfidence: CGFloat = 0.0
     @Published var isCorrectPose: Bool = false
     @Published var currentCameraPosition: AVCaptureDevice.Position = .front
+    @Published var showVideoPrompt = false
     
     // Vision request
     private let bodyPoseRequest = VNDetectHumanBodyPoseRequest()
@@ -23,6 +23,10 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
     
     private var lastRequestTime: Date = Date()
     private let requestInterval: TimeInterval = 3.0  // 3 seconds
+    
+    // Timer properties
+    private var incorrectPoseTimer: Timer?
+    private var incorrectPoseStartTime: Date?
     
     // Expected features matching the server's format
     private let expectedFeatures = [
@@ -122,6 +126,30 @@ class LivePoseFeedbackViewModel: NSObject, ObservableObject {
     
     func stopCamera() {
         captureSession.stopRunning()
+        resetIncorrectPoseTimer()
+    }
+    
+    private func startIncorrectPoseTimer() {
+        incorrectPoseStartTime = Date()
+        incorrectPoseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self,
+                  let startTime = self.incorrectPoseStartTime else { return }
+            
+            let elapsedTime = Date().timeIntervalSince(startTime)
+            if elapsedTime >= 15.0 {
+                DispatchQueue.main.async {
+                    self.showVideoPrompt = true
+                    self.incorrectPoseTimer?.invalidate()
+                    self.incorrectPoseTimer = nil
+                }
+            }
+        }
+    }
+    
+    private func resetIncorrectPoseTimer() {
+        incorrectPoseTimer?.invalidate()
+        incorrectPoseTimer = nil
+        incorrectPoseStartTime = nil
     }
     
     private func processLandmarkKey(_ key: String) -> String {
@@ -214,6 +242,12 @@ extension LivePoseFeedbackViewModel: AVCaptureVideoDataOutputSampleBufferDelegat
                         self.feedbackMessage = isCorrect ?
                         "Great! Keep holding the pose!" :
                         "Adjust your pose to match the correct form"
+                        
+                        if isCorrect {
+                            resetIncorrectPoseTimer()
+                        } else if incorrectPoseTimer == nil {
+                            startIncorrectPoseTimer()
+                        }
                     }
                 } catch {
                     DispatchQueue.main.async {
