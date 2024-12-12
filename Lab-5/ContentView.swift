@@ -132,29 +132,60 @@ struct ContentView: View {
 
 struct PoseSelectionView: View {
     let availablePoses: [YogaPose]
+    
+    private let poseImages: [String: String] = [
+        "downdog": "downdog-preview",
+        "goddess": "goddess-preview",
+        "plank": "plank-preview",
+        "tree": "tree-preview",
+        "warrior2": "warrior2-preview"
+    ]
 
     var body: some View {
         List(availablePoses) { pose in
             NavigationLink(
                 destination: LivePoseFeedbackView(selectedPose: pose)
             ) {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text(pose.name.capitalized)
-                            .font(.headline)
-                        Spacer()
-                        Text(pose.difficulty.rawValue.capitalized)
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(pose.difficulty == .beginner ? Color.green.opacity(0.2) : Color.orange.opacity(0.2))
+                VStack(alignment: .leading, spacing: 12) {
+                    if let imageName = poseImages[pose.name],
+                       let uiImage = UIImage(named: imageName) ?? UIImage(contentsOfFile: Bundle.main.path(forResource: imageName, ofType: "jpg") ?? "") {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 150)
+                            .clipped()
+                            .cornerRadius(8)
+                    } else {
+                        // Fallback if image loading fails
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(height: 150)
+                            .cornerRadius(8)
+                            .overlay(
+                                Text("Image not found: \(poseImages[pose.name] ?? "unknown")")
+                                    .foregroundColor(.gray)
                             )
                     }
-                    Text(pose.description)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text(pose.name.capitalized)
+                                .font(.headline)
+                            Spacer()
+                            Text(pose.difficulty.rawValue.capitalized)
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(pose.difficulty == .beginner ? Color.green.opacity(0.2) : Color.orange.opacity(0.2))
+                                )
+                        }
+                        
+                        Text(pose.description)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
                 }
                 .padding(.vertical, 5)
             }
