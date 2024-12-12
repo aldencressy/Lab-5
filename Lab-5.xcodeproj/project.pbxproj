@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		8B73F5DA2D0B784B002E339B /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 8B73F5D92D0B784B002E339B /* ZIPFoundation */; };
-		8B73F5E52D0B7970002E339B /* plank-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5E02D0B7970002E339B /* plank-preview.jpg */; };
-		8B73F5E62D0B7970002E339B /* goddess-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5E12D0B7970002E339B /* goddess-preview.jpg */; };
-		8B73F5E72D0B7970002E339B /* tree-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5E22D0B7970002E339B /* tree-preview.jpg */; };
-		8B73F5E82D0B7970002E339B /* downdog-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5E32D0B7970002E339B /* downdog-preview.jpg */; };
-		8B73F5E92D0B7970002E339B /* warrior2-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5E42D0B7970002E339B /* warrior2-preview.jpg */; };
+		8B73F5EF2D0B7EE8002E339B /* downdog-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5EA2D0B7EE7002E339B /* downdog-preview.jpg */; };
+		8B73F5F02D0B7EE8002E339B /* plank-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5EB2D0B7EE7002E339B /* plank-preview.jpg */; };
+		8B73F5F12D0B7EE8002E339B /* warrior2-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5EC2D0B7EE8002E339B /* warrior2-preview.jpg */; };
+		8B73F5F22D0B7EE8002E339B /* tree-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5ED2D0B7EE8002E339B /* tree-preview.jpg */; };
+		8B73F5F32D0B7EE8002E339B /* goddess-preview.jpg in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8B73F5EE2D0B7EE8002E339B /* goddess-preview.jpg */; };
 		8BF3C5292D0A3FEB0023EE76 /* warrior2.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5242D0A3FEA0023EE76 /* warrior2.mp4 */; };
 		8BF3C52A2D0A3FEB0023EE76 /* downdog.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */; };
 		8BF3C52B2D0A3FEB0023EE76 /* tree.mp4 in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8BF3C5262D0A3FEB0023EE76 /* tree.mp4 */; };
@@ -27,11 +27,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				8B73F5E52D0B7970002E339B /* plank-preview.jpg in Copy Bundle Resources */,
-				8B73F5E62D0B7970002E339B /* goddess-preview.jpg in Copy Bundle Resources */,
-				8B73F5E72D0B7970002E339B /* tree-preview.jpg in Copy Bundle Resources */,
-				8B73F5E82D0B7970002E339B /* downdog-preview.jpg in Copy Bundle Resources */,
-				8B73F5E92D0B7970002E339B /* warrior2-preview.jpg in Copy Bundle Resources */,
+				8B73F5EF2D0B7EE8002E339B /* downdog-preview.jpg in Copy Bundle Resources */,
+				8B73F5F02D0B7EE8002E339B /* plank-preview.jpg in Copy Bundle Resources */,
+				8B73F5F12D0B7EE8002E339B /* warrior2-preview.jpg in Copy Bundle Resources */,
+				8B73F5F22D0B7EE8002E339B /* tree-preview.jpg in Copy Bundle Resources */,
+				8B73F5F32D0B7EE8002E339B /* goddess-preview.jpg in Copy Bundle Resources */,
 				8BF3C5292D0A3FEB0023EE76 /* warrior2.mp4 in Copy Bundle Resources */,
 				8BF3C52A2D0A3FEB0023EE76 /* downdog.mp4 in Copy Bundle Resources */,
 				8BF3C52B2D0A3FEB0023EE76 /* tree.mp4 in Copy Bundle Resources */,
@@ -44,11 +44,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8B73F5E02D0B7970002E339B /* plank-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "plank-preview.jpg"; path = "../CS 5323/Images/plank-preview.jpg"; sourceTree = "<group>"; };
-		8B73F5E12D0B7970002E339B /* goddess-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "goddess-preview.jpg"; path = "../CS 5323/Images/goddess-preview.jpg"; sourceTree = "<group>"; };
-		8B73F5E22D0B7970002E339B /* tree-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "tree-preview.jpg"; path = "../CS 5323/Images/tree-preview.jpg"; sourceTree = "<group>"; };
-		8B73F5E32D0B7970002E339B /* downdog-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "downdog-preview.jpg"; path = "../CS 5323/Images/downdog-preview.jpg"; sourceTree = "<group>"; };
-		8B73F5E42D0B7970002E339B /* warrior2-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "warrior2-preview.jpg"; path = "../CS 5323/Images/warrior2-preview.jpg"; sourceTree = "<group>"; };
+		8B73F5EA2D0B7EE7002E339B /* downdog-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "downdog-preview.jpg"; sourceTree = "<group>"; };
+		8B73F5EB2D0B7EE7002E339B /* plank-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "plank-preview.jpg"; sourceTree = "<group>"; };
+		8B73F5EC2D0B7EE8002E339B /* warrior2-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "warrior2-preview.jpg"; sourceTree = "<group>"; };
+		8B73F5ED2D0B7EE8002E339B /* tree-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "tree-preview.jpg"; sourceTree = "<group>"; };
+		8B73F5EE2D0B7EE8002E339B /* goddess-preview.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "goddess-preview.jpg"; sourceTree = "<group>"; };
 		8BB376BB2CEC2D0C009E86F6 /* Lab-5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lab-5.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BF3C5242D0A3FEA0023EE76 /* warrior2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = warrior2.mp4; sourceTree = "<group>"; };
 		8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = downdog.mp4; sourceTree = "<group>"; };
@@ -57,22 +57,9 @@
 		8BF3C5282D0A3FEB0023EE76 /* goddess.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = goddess.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		8B73F5D72D0B75E6002E339B /* Exceptions for "Lab-5" folder in "Copy Bundle Resources" phase from "Lab-5" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 8BF3C5232D0A3F870023EE76 /* Copy Bundle Resources */;
-			membershipExceptions = (
-				Assets.xcassets,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8BB376BD2CEC2D0C009E86F6 /* Lab-5 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				8B73F5D72D0B75E6002E339B /* Exceptions for "Lab-5" folder in "Copy Bundle Resources" phase from "Lab-5" target */,
-			);
 			path = "Lab-5";
 			sourceTree = "<group>";
 		};
@@ -93,11 +80,11 @@
 		8BB376B22CEC2D0C009E86F6 = {
 			isa = PBXGroup;
 			children = (
-				8B73F5E32D0B7970002E339B /* downdog-preview.jpg */,
-				8B73F5E12D0B7970002E339B /* goddess-preview.jpg */,
-				8B73F5E02D0B7970002E339B /* plank-preview.jpg */,
-				8B73F5E22D0B7970002E339B /* tree-preview.jpg */,
-				8B73F5E42D0B7970002E339B /* warrior2-preview.jpg */,
+				8B73F5EA2D0B7EE7002E339B /* downdog-preview.jpg */,
+				8B73F5EE2D0B7EE8002E339B /* goddess-preview.jpg */,
+				8B73F5EB2D0B7EE7002E339B /* plank-preview.jpg */,
+				8B73F5ED2D0B7EE8002E339B /* tree-preview.jpg */,
+				8B73F5EC2D0B7EE8002E339B /* warrior2-preview.jpg */,
 				8BF3C5252D0A3FEB0023EE76 /* downdog.mp4 */,
 				8BF3C5282D0A3FEB0023EE76 /* goddess.mp4 */,
 				8BF3C5272D0A3FEB0023EE76 /* plank.mp4 */,
